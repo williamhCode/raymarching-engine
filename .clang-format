@@ -1,0 +1,27 @@
+ColumnLimit:     88
+# AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: BlockIndent
+IndentWidth: 2
+ContinuationIndentWidth: 2
+SortIncludes: false
+PointerAlignment: Left
+IndentCaseLabels: true
+# BreakBeforeBraces: Custom
+# BraceWrapping:
+#   BeforeLambdaBody: false
+
+# LambdaBodyIndentationKind: Signature
+
+# BinPackArguments: false
+BinPackParameters: false
+AllowShortLambdasOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: WithoutElse
+# PenaltyReturnTypeOnItsOwnLine: 10000
+AlwaysBreakTemplateDeclarations: Yes
+# AllowShortCaseLabelsOnASingleLine: true
+
+IndentExternBlock: Indent
+
+# broken rn https://github.com/llvm/llvm-project/issues/47997
+# IndentPPDirectives: BeforeHash

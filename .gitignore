@@ -1,0 +1,7 @@
+build-native/
+build-web/
+.cache/
+xcode/
+compile_commands.json
+.ignore
+
