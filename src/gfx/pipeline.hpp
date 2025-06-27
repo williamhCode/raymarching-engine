@@ -14,6 +14,7 @@ struct Pipeline {
   wgpu::RenderPipeline basicRPL;
 
   Pipeline() = default;
+  // seperate function to initialize after creating WGPUContext
   void Init();
 };
 

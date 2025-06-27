@@ -3,6 +3,7 @@
 #include "webgpu_utils/init.hpp"
 #include "sdl3webgpu.hpp"
 #include "dawn/webgpu_cpp_print.h"
+#include <string_view>
 
 using namespace wgpu;
 
@@ -20,10 +21,7 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
     enabledToggleNames.push_back(toggle.c_str());
   }
 
-#ifdef __EMSCRIPTEN__
-  instance = CreateInstance();
-
-#else
+#ifndef __EMSCRIPTEN__
   wgpu::DawnTogglesDescriptor toggles({
     .enabledToggleCount = enabledToggleNames.size(),
     .enabledToggles = enabledToggleNames.data(),
@@ -31,9 +29,11 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
 
   InstanceDescriptor desc{
     .nextInChain = &toggles,
-    .features = {.timedWaitAnyEnable = true},
+    .capabilities = {.timedWaitAnyEnable = true},
   };
   instance = CreateInstance(&desc);
+#else
+  instance = CreateInstance();
 #endif
 
   if (!instance) {
@@ -41,23 +41,22 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
     std::exit(1);
   }
 
-#ifdef __EMSCRIPTEN__
-  wgpu::SurfaceDescriptorFromCanvasHTMLSelector canvasDesc{};
+#ifndef __EMSCRIPTEN__
+  surface = SDL_GetWGPUSurface(instance, window);
+#else
+  SurfaceDescriptorFromCanvasHTMLSelector canvasDesc{};
   canvasDesc.selector = "#canvas";
 
-  wgpu::SurfaceDescriptor surfaceDesc{.nextInChain = &canvasDesc};
+  SurfaceDescriptor surfaceDesc{.nextInChain = &canvasDesc};
   surface = instance.CreateSurface(&surfaceDesc);
-
-#else
-  surface = SDL_GetWGPUSurface(instance, window);
 #endif
 
   // adapter ------------------------------------
   adapter = utils::RequestAdapter(
     instance,
     {
-      .compatibleSurface = surface,
       .powerPreference = PowerPreference::Undefined,
+      .compatibleSurface = surface,
     }
   );
 
@@ -91,18 +90,18 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
   });
 
   deviceDesc.SetUncapturedErrorCallback(
-    [](const Device& _, ErrorType type, const char* message) {
+    [](const Device& _, ErrorType type, StringView message) {
       std::ostringstream() << type;
-      LOG_ERR("Device error: {} ({})", ToString(type), message);
+      LOG_ERR("Device error: {} ({})", ToString(type), std::string_view(message));
       // LOG_TRACE();
     }
   );
 
   deviceDesc.SetDeviceLostCallback(
     CallbackMode::AllowSpontaneous,
-    [](const Device& _, DeviceLostReason reason, const char* message) {
+    [](const Device& _, DeviceLostReason reason, StringView message) {
       if (reason != DeviceLostReason::Destroyed) {
-        LOG_ERR("Device lost: {} ({})", ToString(reason), message);
+        LOG_ERR("Device lost: {} ({})", ToString(reason), std::string_view(message));
       }
     }
   );
@@ -121,9 +120,9 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
   SurfaceConfiguration surfaceConfig{
     .device = device,
     .format = surfaceFormat,
-    .alphaMode = alphaMode,
     .width = size.x,
     .height = size.y,
+    .alphaMode = alphaMode,
     .presentMode = presentMode,
   };
   surface.Configure(&surfaceConfig);
@@ -135,9 +134,9 @@ void WGPUContext::Resize(glm::uvec2 _size) {
   SurfaceConfiguration surfaceConfig{
     .device = device,
     .format = surfaceFormat,
-    .alphaMode = alphaMode,
     .width = size.x,
     .height = size.y,
+    .alphaMode = alphaMode,
     .presentMode = presentMode,
   };
   surface.Configure(&surfaceConfig);

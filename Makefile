@@ -3,7 +3,7 @@
 
 EXEC = raymarch
 
-WEB = true
+# WEB = true
 TYPE = debug
 # TYPE = release
 
@@ -47,4 +47,4 @@ run-native:
 	build-native/$(TYPE)/$(EXEC)
 
 run-web:
-	emrun build-web/$(TYPE)/$(EXEC).html
+	emrun --browser chrome build-web/$(TYPE)/$(EXEC).html

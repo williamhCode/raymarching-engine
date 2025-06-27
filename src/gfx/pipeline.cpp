@@ -10,7 +10,7 @@ void Pipeline::Init() {
     {0, ShaderStage::Vertex, BufferBindingType::Uniform},
   });
 
-  ShaderModule basicShader = ctx.LoadShaderModule(ROOT_DIR "/res/shaders/basic.wgsl");
+  ShaderModule basicShader = ctx.LoadShaderModulePath(ROOT_DIR "/res/shaders/basic.wgsl");
 
   basicRPL = ctx.MakeRenderPipeline({
     .vs = basicShader,

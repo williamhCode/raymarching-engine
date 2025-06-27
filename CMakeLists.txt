@@ -28,6 +28,7 @@ set(APP_SRC
   gfx/context.cpp
   gfx/pipeline.cpp
   gfx/camera.cpp
+  gfx/renderer.cpp
 
   utils/logger.cpp
 )

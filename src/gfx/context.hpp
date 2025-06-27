@@ -18,8 +18,6 @@ struct WGPUContext : wgpu::utils::DeviceWrapper {
   wgpu::CompositeAlphaMode alphaMode;
   wgpu::PresentMode presentMode;
 
-  // Pipeline pipeline;
-
   WGPUContext() = default;
   WGPUContext(SDL_Window* window, glm::uvec2 size, wgpu::PresentMode presentMode);
   void Resize(glm::uvec2 size);
