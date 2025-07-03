@@ -6,14 +6,12 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fs = std::filesystem;
-
 struct Logger {
   std::atomic_bool enabled = true;
   std::mutex mutex;
 
   std::ofstream logFile;
-  void RedirToPath(const fs::path& path);
+  void RedirToPath(const std::filesystem::path& path);
 
   void Log(const std::string& message);
 

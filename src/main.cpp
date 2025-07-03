@@ -6,7 +6,7 @@
 #include "utils/logger.hpp"
 
 #include <print>
-#include <vector>
+#include <filesystem>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -14,6 +14,7 @@
 #endif
 
 using namespace wgpu;
+namespace fs = std::filesystem;
 
 bool App::Init() {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -34,7 +35,10 @@ bool App::Init() {
   LOG_INFO("Framebuffer size: {}x{}", fbSize.x, fbSize.y);
 
   ctx = WGPUContext(win, fbSize, wgpu::PresentMode::Fifo);
-  pipeline.Init();
+
+  fs::path resourcesDir = ROOT_DIR "/res";
+  slang = SlangContext(resourcesDir / "shaders");
+  pipeline = Pipeline(slang);
 
   renderer = Renderer(this);
 

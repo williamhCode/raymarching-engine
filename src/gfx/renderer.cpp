@@ -8,12 +8,24 @@
 using namespace wgpu;
 
 Renderer::Renderer(App* _app) : app(_app) {
-  camera = Ortho2D(app->size);
+  Buffer resolutionBuf = ctx.CreateUniformBuffer(
+    sizeof(glm::vec2), &app->fbSize
+  );
+  resolutionBG = ctx.MakeBindGroup(
+    pipeline.resolutionBGL,
+    {
+      {0, resolutionBuf},
+    }
+  );
 
   std::vector<BasicQuadVertex> quadData{
-    {{400, 100}, {1, 0, 0, 1}},
-    {{650, 500}, {0, 1, 0, 1}},
-    {{150, 500}, {0, 0, 1, 1}},
+    {{-1, 1}},
+    {{1, -1}},
+    {{1, 1}},
+
+    {{-1, 1}},
+    {{-1, -1}},
+    {{1, -1}},
   };
   vbo = ctx.CreateVertexBuffer(
     quadData.size() * sizeof(BasicQuadVertex), quadData.data()
@@ -42,14 +54,14 @@ void Renderer::RenderTriangle() {
 
   auto passEncoder = commandEncoder.BeginRenderPass(&basicRPD);
   passEncoder.SetPipeline(pipeline.basicRPL);
-  passEncoder.SetBindGroup(0, camera.viewProjBG);
+  passEncoder.SetBindGroup(0, resolutionBG);
   passEncoder.SetVertexBuffer(0, vbo);
-  passEncoder.Draw(3);
+  passEncoder.Draw(6);
   passEncoder.End();
 }
 
 void Renderer::End() {
   auto commandBuffer = commandEncoder.Finish();
   ctx.queue.Submit(1, &commandBuffer);
-
+  nextTextureView = {};
 }

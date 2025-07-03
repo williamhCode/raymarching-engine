@@ -3,6 +3,7 @@
 #include "SDL3/SDL_video.h"
 #include "gfx/renderer.hpp"
 #include "glm/ext/vector_float2.hpp"
+#include "slang_utils/context.hpp"
 
 struct App {
   bool exit = false;
@@ -12,6 +13,7 @@ struct App {
   glm::vec2 fbSize;
   float dpiScale;
 
+  SlangContext slang;
   Renderer renderer;
 
   bool Init();

@@ -9,7 +9,7 @@ struct App;
 struct Renderer {
   App* app;
 
-  Ortho2D camera;
+  wgpu::BindGroup resolutionBG;
   wgpu::Buffer vbo;
 
   wgpu::TextureView nextTextureView;

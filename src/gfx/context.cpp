@@ -11,6 +11,7 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
     : size(_size), presentMode(_presentMode) {
 
   // instance -----------------------------
+#ifndef __EMSCRIPTEN__
   std::vector<std::string> enabledToggles = {
     "enable_immediate_error_handling", "allow_unsafe_apis"
   };
@@ -21,8 +22,7 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
     enabledToggleNames.push_back(toggle.c_str());
   }
 
-#ifndef __EMSCRIPTEN__
-  wgpu::DawnTogglesDescriptor toggles({
+  DawnTogglesDescriptor toggles({
     .enabledToggleCount = enabledToggleNames.size(),
     .enabledToggles = enabledToggleNames.data(),
   });
@@ -33,7 +33,10 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
   };
   instance = CreateInstance(&desc);
 #else
-  instance = CreateInstance();
+  InstanceDescriptor desc{
+    .capabilities = {.timedWaitAnyEnable = true},
+  };
+  instance = CreateInstance(&desc);
 #endif
 
   if (!instance) {
@@ -44,8 +47,9 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
 #ifndef __EMSCRIPTEN__
   surface = SDL_GetWGPUSurface(instance, window);
 #else
-  SurfaceDescriptorFromCanvasHTMLSelector canvasDesc{};
-  canvasDesc.selector = "#canvas";
+  EmscriptenSurfaceSourceCanvasHTMLSelector canvasDesc({
+    .selector = "#canvas",
+  });
 
   SurfaceDescriptor surfaceDesc{.nextInChain = &canvasDesc};
   surface = instance.CreateSurface(&surfaceDesc);
@@ -55,7 +59,6 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
   adapter = utils::RequestAdapter(
     instance,
     {
-      .powerPreference = PowerPreference::Undefined,
       .compatibleSurface = surface,
     }
   );
@@ -79,15 +82,15 @@ WGPUContext::WGPUContext(SDL_Window* window, glm::uvec2 _size, PresentMode _pres
   // utils::PrintSurfaceCapabilities(surfaceCaps);
 
   // device -------------------------------------
-  std::vector<FeatureName> requiredFeatures{
-    FeatureName::TimestampQuery,
-  };
+  // std::vector<FeatureName> requiredFeatures{
+  //   FeatureName::TimestampQuery,
+  // };
+  // DeviceDescriptor deviceDesc({
+  //   .requiredFeatureCount = requiredFeatures.size(),
+  //   .requiredFeatures = requiredFeatures.data(),
+  // });
 
-  DeviceDescriptor deviceDesc({
-    .requiredFeatureCount = requiredFeatures.size(),
-    .requiredFeatures = requiredFeatures.data(),
-    // .requiredLimits = &requiredLimits,
-  });
+  DeviceDescriptor deviceDesc;
 
   deviceDesc.SetUncapturedErrorCallback(
     [](const Device& _, ErrorType type, StringView message) {

@@ -1,6 +1,8 @@
 #include "./logger.hpp"
 #include <iostream>
 
+namespace fs = std::filesystem;
+
 void Logger::RedirToPath(const fs::path& path) {
   logFile.open(path, std::ios::out | std::ios::app);
   if (logFile.is_open()) {

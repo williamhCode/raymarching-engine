@@ -11,12 +11,12 @@ Ortho2D::Ortho2D(glm::vec2 size) {
   auto view = glm::ortho<float>(0, size.x, size.y, 0, -1, 1);
   viewProjBuffer = ctx.CreateUniformBuffer(sizeof(glm::mat4), &view);
 
-  viewProjBG = ctx.MakeBindGroup(
-    pipeline.viewProjBGL,
-    {
-      {0, viewProjBuffer},
-    }
-  );
+  // viewProjBG = ctx.MakeBindGroup(
+  //   pipeline.viewProjBGL,
+  //   {
+  //     {0, viewProjBuffer},
+  //   }
+  // );
 }
 
 void Ortho2D::Resize(glm::vec2 size, glm::vec2 pos) {

@@ -1,21 +1,19 @@
 #pragma once
 
+#include "slang_utils/context.hpp"
 #include "webgpu/webgpu_cpp.h"
 #include "glm/ext/vector_float2.hpp"
-#include "glm/ext/vector_float4.hpp"
 
 struct BasicQuadVertex {
   glm::vec2 position;
-  glm::vec4 color;
 };
 
 struct Pipeline {
-  wgpu::BindGroupLayout viewProjBGL;
+  wgpu::BindGroupLayout resolutionBGL;
   wgpu::RenderPipeline basicRPL;
 
   Pipeline() = default;
-  // seperate function to initialize after creating WGPUContext
-  void Init();
+  Pipeline(SlangContext& slang);
 };
 
 inline Pipeline pipeline;

@@ -1,27 +1,33 @@
 #include "./pipeline.hpp"
 
 #include "gfx/context.hpp"
-#include "webgpu_utils.hpp"
 
 using namespace wgpu;
 
-void Pipeline::Init() {
-  viewProjBGL = ctx.MakeBindGroupLayout({
-    {0, ShaderStage::Vertex, BufferBindingType::Uniform},
+Pipeline::Pipeline(SlangContext& slang) {
+  auto loadShaderModule = [&](
+    const std::string& moduleName,
+    const std::vector<slang::PreprocessorMacroDesc>& macros = {}
+  ) {
+    std::string source = slang.GetModuleSource(moduleName, macros);
+    return ctx.LoadShaderModuleSource(source);
+  };
+
+  resolutionBGL = ctx.MakeBindGroupLayout({
+    {0, ShaderStage::Fragment, BufferBindingType::Uniform},
   });
 
-  ShaderModule basicShader = ctx.LoadShaderModulePath(ROOT_DIR "/res/shaders/basic.wgsl");
+  ShaderModule basicShader = loadShaderModule("basic");
 
   basicRPL = ctx.MakeRenderPipeline({
     .vs = basicShader,
     .fs = basicShader,
-    .bgls = {viewProjBGL},
+    .bgls = {resolutionBGL},
     .buffers = {
       {
         .arrayStride = sizeof(BasicQuadVertex),
         .attributes = {
           {VertexFormat::Float32x2, offsetof(BasicQuadVertex, position)},
-          {VertexFormat::Float32x4, offsetof(BasicQuadVertex, color)},
         }
       }
     },
